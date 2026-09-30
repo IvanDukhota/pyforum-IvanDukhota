@@ -17,7 +17,7 @@ sudo apt install -y postgresql nginx git curl
 
 ```bash
 
-sudo useradd --system --create-home --home-dir /srv/pyforum --shell /usr/sbin/nologin pyforun
+sudo useradd --system --create-home --home-dir /srv/pyforum --shell /usr/sbin/nologin pyforum
 sudo -u pyforum git clone https://github.com/IvanDukhota/pyforum-IvanDukhota.git /srv/pyforum/app
 ```
 
@@ -44,8 +44,8 @@ requirements.txt contains both psycopg2 and psycopg2-binary. psycopg2 is built f
 ### 4. Setup database:
 
 ```
-sudo -u postgres createuser pyforun
-sudo -u postgres createdb -0 pyforum forum
+sudo -u postgres createuser pyforum
+sudo -u postgres createdb -O pyforum forum
 sudo -u puforum -H bash -c "grep -v 'OWNER TO' /srv/pyforum/app/forum_d.sql | psql -d forum"
 ```
 
