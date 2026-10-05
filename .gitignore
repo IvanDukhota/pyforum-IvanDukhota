@@ -14,3 +14,4 @@ __local_settings.py
 /*/migrations/
 .coverage
 logs/*.log
+/staticfiles/
