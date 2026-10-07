@@ -1,0 +1,17 @@
+.git
+.github
+.gitignore
+.idea
+.venv
+venv
+.env
+**/__pycache__
+**/*.pyc
+logs/*.log
+staticfiles
+forum_d.sql
+Dockerfile
+docker-compose.yml
+nginx
+README.md
+code_conventions.md
