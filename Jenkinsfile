@@ -1,12 +1,28 @@
 pipeline {
     agent any
 
+    environment {
+        COMPOSE_PROJECT_NAME = 'pyforum'
+    }
+
     stages {
-        stage('Check environment') {
+        stage('Prepare') {
             steps {
-                sh 'docker --version'
-                sh 'docker compose version'
-                sh 'ls -la'
+                withCredentials([file(credentialsId: 'pyforum-env', variable: 'ENV_FILE')]) {
+                    sh 'cp -f "$ENV_FILE" .env'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'docker compose build app'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'docker compose run --rm --no-deps -e BLACK_CACHE_DIR=/tmp app black --check .'
             }
         }
     }
