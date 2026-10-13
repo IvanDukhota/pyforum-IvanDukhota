@@ -15,7 +15,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from corsheaders.defaults import default_headers
-from decouple import config
+from decouple import Csv, config
 
 mimetypes.add_type("text/css", ".css", True)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -62,10 +63,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-# ...
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Here
-    # .
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -159,7 +156,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 #STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-STATIC_ROOT = os.path.join(BASE_DIR)
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS=[os.path.join(BASE_DIR, "static"), ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -234,6 +231,10 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'console': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+        },
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
@@ -242,7 +243,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['console', 'file'],
             'level': 'ERROR',
             'propagate': True,
         },
