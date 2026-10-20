@@ -15,3 +15,10 @@ __local_settings.py
 .coverage
 logs/*.log
 /staticfiles/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
