@@ -9,8 +9,9 @@ locals {
 
   vms = merge(
     {
-      lb = { ip = cidrhost(var.network_cidr, 10), memory = 512, vcpu = 1, disk_gib = 10 }
-      db = { ip = cidrhost(var.network_cidr, 30), memory = 1024, vcpu = 1, disk_gib = 10 }
+      lb      = { ip = cidrhost(var.network_cidr, 10), memory = 512, vcpu = 1, disk_gib = 10 }
+      db      = { ip = cidrhost(var.network_cidr, 30), memory = 1024, vcpu = 1, disk_gib = 10 }
+      jenkins = { ip = cidrhost(var.network_cidr, 40), memory = 4096, vcpu = 2, disk_gib = 30 }
     },
     local.apps,
   )
