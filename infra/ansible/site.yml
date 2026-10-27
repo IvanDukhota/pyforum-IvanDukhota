@@ -3,3 +3,9 @@
   become: true
   roles:
     - common
+
+- name: Database
+  hosts: db_servers
+  become: true
+  roles:
+    - postgres
