@@ -1,0 +1,84 @@
+- name: Install app packages
+  ansible.builtin.apt:
+    name: "{{ app_packages }}"
+    state: present
+
+- name: Create app system user
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    system: true
+    home: "{{ app_home }}"
+    create_home: true
+    shell: /usr/sbin/nologin
+
+- name: Clone application code
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dir }}"
+    version: "{{ app_version }}"
+  become_user: "{{ app_user }}"
+  notify: Restart pyforum
+
+- name: Install uv
+  ansible.builtin.unarchive:
+    src: "https://github.com/astral-sh/uv/releases/download/{{ app_uv_version }}/uv-x86_64-unknown-linux-gnu.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+    creates: /usr/local/bin/uv
+
+- name: Create virtualenv with Python {{ app_python_version }}
+  ansible.builtin.command:
+    cmd: "uv venv --python {{ app_python_version }} --seed {{ app_venv }}"
+    creates: "{{ app_venv }}/bin/python"
+  environment:
+    UV_PYTHON_INSTALL_DIR: "{{ app_python_dir }}"
+  become_user: "{{ app_user }}"
+
+- name: Install Python requirements
+  ansible.builtin.pip:
+    requirements: "{{ app_dir }}/requirements.txt"
+    virtualenv: "{{ app_venv }}"
+  become_user: "{{ app_user }}"
+  notify: Restart pyforum
+
+- name: Create application env file
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0600"
+  no_log: true
+  notify: Restart pyforum
+
+- name: Collect static files
+  ansible.builtin.command:
+    cmd: "{{ app_venv }}/bin/python manage.py collectstatic --noinput"
+    chdir: "{{ app_dir }}"
+  become_user: "{{ app_user }}"
+  register: app_collectstatic
+  changed_when: "'0 static files copied' not in app_collectstatic.stdout"
+  notify: Restart pyforum
+
+- name: Install pyforum systemd unit
+  ansible.builtin.template:
+    src: pyforum.service.j2
+    dest: /etc/systemd/system/pyforum.service
+    mode: "0644"
+  notify: Restart pyforum
+
+- name: Enable and start pyforum
+  ansible.builtin.systemd_service:
+    name: pyforum
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Allow app port from load balancer
+  community.general.ufw:
+    rule: allow
+    port: "{{ app_port }}"
+    proto: tcp
+    src: "{{ app_lb_host }}"

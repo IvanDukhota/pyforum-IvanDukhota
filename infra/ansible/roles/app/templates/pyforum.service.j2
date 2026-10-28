@@ -1,0 +1,13 @@
+[Unit]
+Description=pyforum gunicorn
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_dir }}
+ExecStart={{ app_venv }}/bin/gunicorn forum-sandbox.wsgi:application --bind {{ ansible_host }}:{{ app_port }} --workers {{ app_gunicorn_workers }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
