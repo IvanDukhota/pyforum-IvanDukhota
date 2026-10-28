@@ -1,0 +1,8 @@
+common_packages:
+  - ca-certificates
+  - curl
+  - vim
+  - htop
+  - ufw
+
+common_ssh_allowed_from: 10.10.10.1

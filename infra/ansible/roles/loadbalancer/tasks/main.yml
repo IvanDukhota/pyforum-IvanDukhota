@@ -1,0 +1,57 @@
+- name: Install load balancer packages
+  ansible.builtin.apt:
+    name: "{{ lb_packages }}"
+    state: present
+
+- name: Create media directory
+  ansible.builtin.file:
+    path: "{{ lb_media_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy media files
+  ansible.builtin.copy:
+    src: "{{ lb_media_src }}"
+    dest: "{{ lb_media_dir }}/"
+    owner: root
+    group: root
+    mode: "0644"
+    directory_mode: "0755"
+
+- name: Install pyforum site config
+  ansible.builtin.template:
+    src: pyforum.conf.j2
+    dest: /etc/nginx/sites-available/pyforum.conf
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Enable pyforum site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/pyforum.conf
+    dest: /etc/nginx/sites-enabled/pyforum.conf
+    state: link
+  notify: Reload nginx
+
+- name: Disable default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
+
+- name: Validate nginx config
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Enable and start nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Allow HTTP
+  community.general.ufw:
+    rule: allow
+    port: "80"
+    proto: tcp

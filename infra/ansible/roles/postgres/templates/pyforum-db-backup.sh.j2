@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+pg_dump -Fc {{ postgres_db_name }} > {{ postgres_backup_dir }}/{{ postgres_db_name }}_$(date +%F_%H%M).dump
+find {{ postgres_backup_dir }} -name '*.dump' -mtime +{{ postgres_backup_keep_days }} -delete

@@ -1,0 +1,27 @@
+app_packages:
+  - git
+  - acl
+
+app_user: pyforum
+app_home: /srv/pyforum
+app_dir: "{{ app_home }}/app"
+
+app_repo: https://github.com/IvanDukhota/pyforum-IvanDukhota.git
+app_version: main
+
+app_uv_version: "0.12.21"
+app_python_version: "3.11"
+app_python_dir: "{{ app_home }}/python"
+app_venv: "{{ app_home }}/venv"
+
+app_secret_key: "{{ vault_app_secret_key }}"
+app_db_name: forum
+app_db_user: pyforum
+app_db_password: "{{ vault_postgres_db_password }}"
+app_db_host: "{{ hostvars[groups['db_servers'][0]].ansible_host }}"
+app_db_port: 5432
+app_lb_host: "{{ hostvars[groups['lb_servers'][0]].ansible_host }}"
+app_allowed_hosts: "{{ app_lb_host }},{{ ansible_host }},localhost"
+
+app_port: 8000
+app_gunicorn_workers: 3

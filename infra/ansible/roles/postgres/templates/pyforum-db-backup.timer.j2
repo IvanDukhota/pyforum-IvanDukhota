@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily backup of PostgreSQL database {{ postgres_db_name }}
+
+[Timer]
+OnCalendar={{ postgres_backup_schedule }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

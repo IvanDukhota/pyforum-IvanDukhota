@@ -1,0 +1,23 @@
+- name: Base setup
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Database
+  hosts: db_servers
+  become: true
+  roles:
+    - postgres
+
+- name: Application
+  hosts: app_servers
+  become: true
+  roles:
+    - app
+
+- name: Load balancer
+  hosts: lb_servers
+  become: true
+  roles:
+    - loadbalancer

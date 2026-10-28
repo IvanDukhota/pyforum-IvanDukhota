@@ -1,0 +1,7 @@
+lb_packages:
+  - nginx
+
+lb_backend_port: 8000
+lb_media_src: "{{ playbook_dir }}/../../media/"
+lb_media_dir: /var/www/pyforum/media
+lb_client_max_body_size: 10m
