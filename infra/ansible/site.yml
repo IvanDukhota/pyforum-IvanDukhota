@@ -13,6 +13,8 @@
 - name: Application
   hosts: app_servers
   become: true
+  serial: 1
+  max_fail_percentage: 0
   roles:
     - app
 
