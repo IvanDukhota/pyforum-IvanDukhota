@@ -5,3 +5,7 @@ lb_backend_port: 8000
 lb_media_src: "{{ playbook_dir }}/../../media/"
 lb_media_dir: /var/www/pyforum/media
 lb_client_max_body_size: 10m
+lb_method: least_conn
+lb_max_fails: 3
+lb_fail_timeout: 10s
+lb_connect_timeout: 2s

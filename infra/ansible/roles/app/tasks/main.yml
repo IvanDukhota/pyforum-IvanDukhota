@@ -82,3 +82,15 @@
     port: "{{ app_port }}"
     proto: tcp
     src: "{{ app_lb_host }}"
+
+- name: Apply pending restarts
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for pyforum to respond
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:{{ app_port }}/"
+    status_code: 200
+  register: app_health
+  until: app_health.status == 200
+  retries: 10
+  delay: 3
