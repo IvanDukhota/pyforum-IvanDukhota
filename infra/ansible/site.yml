@@ -16,6 +16,7 @@
   serial: 1
   max_fail_percentage: 0
   roles:
+    - docker
     - app
 
 - name: Load balancer
