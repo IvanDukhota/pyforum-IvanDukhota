@@ -1,0 +1,34 @@
+jenkins_packages:
+  - openjdk-21-jre-headless
+  - fontconfig
+  - acl
+
+jenkins_repo_url: https://pkg.jenkins.io/debian-stable
+jenkins_repo_key: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+jenkins_allowed_from: 10.10.10.1
+
+jenkins_plugin_manager_version: "2.15.0"
+jenkins_plugin_manager_jar: /usr/local/lib/jenkins-plugin-manager-{{ jenkins_plugin_manager_version }}.jar
+
+jenkins_plugins:
+  - configuration-as-code
+  - job-dsl
+  - workflow-aggregator
+  - git
+  - credentials-binding
+
+jenkins_url: http://10.10.10.40:8080/
+jenkins_admin_user: admin
+jenkins_admin_password: "{{ vault_jenkins_admin_password }}"
+
+jenkins_dockerhub_user: lubernen
+jenkins_dockerhub_token: "{{ vault_jenkins_dockerhub_token }}"
+
+jenkins_ci_secret_key: "{{ vault_jenkins_ci_secret_key }}"
+jenkins_ci_db_name: forum
+jenkins_ci_db_user: pyforum
+jenkins_ci_db_password: "{{ vault_jenkins_ci_db_password }}"
+
+jenkins_job_repo: https://github.com/IvanDukhota/pyforum-IvanDukhota.git
+jenkins_job_branch: "*/main"

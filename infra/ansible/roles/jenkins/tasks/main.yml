@@ -1,0 +1,88 @@
+- name: Install Jenkins dependencies
+  ansible.builtin.apt:
+    name: "{{ jenkins_packages }}"
+    state: present
+
+- name: Add Jenkins apt repository
+  ansible.builtin.deb822_repository:
+    name: jenkins
+    types: deb
+    uris: "{{ jenkins_repo_url }}"
+    suites: binary/
+    signed_by: "{{ jenkins_repo_key }}"
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: true
+
+- name: Download plugin manager
+  ansible.builtin.get_url:
+    url: "https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/{{ jenkins_plugin_manager_version }}/jenkins-plugin-manager-{{ jenkins_plugin_manager_version }}.jar"
+    dest: "{{ jenkins_plugin_manager_jar }}"
+    checksum: "sha256:https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/{{ jenkins_plugin_manager_version }}/jenkins-plugin-manager-{{ jenkins_plugin_manager_version }}.jar.sha256"
+    mode: "0644"
+
+- name: Create plugin list
+  ansible.builtin.copy:
+    content: "{{ jenkins_plugins | join('\n') }}\n"
+    dest: /var/lib/jenkins/plugins.txt
+    owner: jenkins
+    group: jenkins
+    mode: "0644"
+  register: jenkins_plugin_list
+
+- name: Install plugins
+  ansible.builtin.command:
+    cmd: >-
+      java -jar {{ jenkins_plugin_manager_jar }}
+      --war /usr/share/java/jenkins.war
+      --plugin-download-directory /var/lib/jenkins/plugins
+      --plugin-file /var/lib/jenkins/plugins.txt
+  become_user: jenkins
+  when: jenkins_plugin_list is changed
+  notify: Restart jenkins
+
+- name: Add jenkins user to docker group
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: true
+  notify: Restart jenkins
+
+- name: Create systemd override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/jenkins.service.d
+    state: directory
+    mode: "0755"
+
+- name: Configure Jenkins service
+  ansible.builtin.template:
+    src: override.conf.j2
+    dest: /etc/systemd/system/jenkins.service.d/override.conf
+    mode: "0644"
+  notify: Restart jenkins
+
+- name: Create JCasC config
+  ansible.builtin.template:
+    src: casc.yaml.j2
+    dest: /var/lib/jenkins/casc.yaml
+    owner: jenkins
+    group: jenkins
+    mode: "0600"
+  no_log: true
+  notify: Restart jenkins
+
+- name: Enable and start Jenkins
+  ansible.builtin.systemd_service:
+    name: jenkins
+    state: started
+    enabled: true
+
+- name: Allow Jenkins UI from host
+  community.general.ufw:
+    rule: allow
+    port: "8080"
+    proto: tcp
+    src: "{{ jenkins_allowed_from }}"

@@ -23,3 +23,10 @@
   become: true
   roles:
     - loadbalancer
+
+- name: CI server
+  hosts: jenkins_servers
+  become: true
+  roles:
+    - docker
+    - jenkins
