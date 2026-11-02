@@ -16,6 +16,7 @@
   serial: 1
   max_fail_percentage: 0
   roles:
+    - docker
     - app
 
 - name: Load balancer
@@ -23,3 +24,10 @@
   become: true
   roles:
     - loadbalancer
+
+- name: CI server
+  hosts: jenkins_servers
+  become: true
+  roles:
+    - docker
+    - jenkins

@@ -1,0 +1,55 @@
+jenkins:
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "{{ jenkins_admin_user }}"
+          password: "{{ jenkins_admin_password }}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "{{ jenkins_url }}"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: dockerhub
+              username: "{{ jenkins_dockerhub_user }}"
+              password: "{{ jenkins_dockerhub_token }}"
+          - file:
+              scope: GLOBAL
+              id: pyforum-env
+              fileName: .env
+              secretBytes: "{{ lookup('ansible.builtin.template', 'ci.env.j2') | b64encode }}"
+
+jobs:
+  - script: |
+      pipelineJob('pyforum') {
+        logRotator {
+          numToKeep(10)
+        }
+        properties {
+          disableConcurrentBuilds()
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('{{ jenkins_job_repo }}')
+                }
+                branch('{{ jenkins_job_branch }}')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }
