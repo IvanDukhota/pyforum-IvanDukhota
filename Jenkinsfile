@@ -54,8 +54,8 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DH_USER', passwordVariable: 'DH_TOKEN')]) {
-                        sh '''
-                            set +x -o pipefail
+                        sh '''#!/bin/bash
+                            set -eo pipefail
                             case "$KEEP_TAGS" in
                                 ''|*[!0-9]*|0) echo "KEEP_TAGS must be a positive number"; exit 1 ;;
                             esac
