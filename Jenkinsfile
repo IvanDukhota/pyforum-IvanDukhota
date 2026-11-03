@@ -51,7 +51,8 @@ pipeline {
                             -e SONAR_TOKEN \
                             -e SONAR_USER_HOME=/usr/src/.sonar-cache \
                             -v "$PWD:/usr/src" \
-                            sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1
+                            sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1 \
+                            -Dsonar.working.directory=/usr/src/.scannerwork
                     '''
                 }
             }
