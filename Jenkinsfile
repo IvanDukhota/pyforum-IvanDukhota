@@ -31,7 +31,29 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'docker compose run --rm -u root app sh -c "python manage.py makemigrations authentication profiles administration && python manage.py test --noinput"'
+                sh '''
+                    docker compose run --rm -T -u root app sh -c "
+                        pip install --no-cache-dir -q coverage==7.17.0 1>&2 &&
+                        python manage.py makemigrations authentication profiles administration 1>&2 &&
+                        coverage run --source=. manage.py test --noinput 1>&2 &&
+                        coverage xml -o -
+                    " > coverage.xml
+                '''
+            }
+        }
+
+        stage('Sonar') {
+            steps {
+                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        docker run --rm \
+                            -u "$(id -u):$(id -g)" \
+                            -e SONAR_TOKEN \
+                            -e SONAR_USER_HOME=/usr/src/.sonar-cache \
+                            -v "$PWD:/usr/src" \
+                            sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1
+                    '''
+                }
             }
         }
 
