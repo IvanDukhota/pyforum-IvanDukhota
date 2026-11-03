@@ -37,6 +37,13 @@ jobs:
         }
         properties {
           disableConcurrentBuilds()
+          pipelineTriggers {
+            triggers {
+              pollSCM {
+                scmpoll_spec('H/5 * * * *')
+              }
+            }
+          }
         }
         definition {
           cpsScm {
