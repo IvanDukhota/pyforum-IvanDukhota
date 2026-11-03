@@ -15,3 +15,7 @@ docker-compose.yml
 nginx
 README.md
 code_conventions.md
+
+.sonar-cache
+.scannerwork
+coverage.xml

@@ -35,7 +35,7 @@ pipeline {
                     docker compose run --rm -T -u root app sh -c "
                         pip install --no-cache-dir -q coverage==7.17.0 1>&2 &&
                         python manage.py makemigrations authentication profiles administration 1>&2 &&
-                        coverage run --source=. manage.py test --noinput 1>&2 &&
+                        coverage run --source=. --omit='*/migrations/*' manage.py test --noinput 1>&2 &&
                         coverage xml -o -
                     " > coverage.xml
                 '''
