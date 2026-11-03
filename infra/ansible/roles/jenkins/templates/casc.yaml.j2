@@ -28,6 +28,11 @@ credentials:
               id: pyforum-env
               fileName: .env
               secretBytes: "{{ lookup('ansible.builtin.template', 'ci.env.j2') | b64encode }}"
+          - string:
+              scope: GLOBAL
+              id: sonarcloud
+              secret: "{{ jenkins_sonar_token }}"
+
 
 jobs:
   - script: |
@@ -37,6 +42,13 @@ jobs:
         }
         properties {
           disableConcurrentBuilds()
+          pipelineTriggers {
+            triggers {
+              pollSCM {
+                scmpoll_spec('H/5 * * * *')
+              }
+            }
+          }
         }
         definition {
           cpsScm {
