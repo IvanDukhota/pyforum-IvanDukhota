@@ -25,6 +25,7 @@ jenkins_admin_password: "{{ vault_jenkins_admin_password }}"
 
 jenkins_dockerhub_user: lubernen
 jenkins_dockerhub_token: "{{ vault_jenkins_dockerhub_token }}"
+jenkins_sonar_token: "{{ vault_jenkins_sonar_token }}"
 
 jenkins_ci_secret_key: "{{ vault_jenkins_ci_secret_key }}"
 jenkins_ci_db_name: forum
