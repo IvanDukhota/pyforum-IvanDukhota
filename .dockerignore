@@ -19,3 +19,5 @@ code_conventions.md
 .sonar-cache
 .scannerwork
 coverage.xml
+
+trivy-report.txt

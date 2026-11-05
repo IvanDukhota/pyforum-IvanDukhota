@@ -58,6 +58,25 @@ pipeline {
             }
         }
 
+        stage('Scan') {
+            steps {
+                sh '''
+                    TRIVY="docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v trivy-cache:/root/.cache/trivy \
+                        aquasec/trivy:0.76.1 image --no-progress"
+
+                    $TRIVY --severity HIGH,CRITICAL pyforum-app > trivy-report.txt
+                    $TRIVY --severity CRITICAL --exit-code 1 --skip-db-update pyforum-app
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
+                }
+            }
+        }
+
         stage('Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DH_USER', passwordVariable: 'DH_TOKEN')]) {
