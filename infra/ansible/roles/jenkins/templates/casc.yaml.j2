@@ -33,12 +33,14 @@ credentials:
               id: sonarcloud
               secret: "{{ jenkins_sonar_token }}"
 
-
 jobs:
   - script: |
       pipelineJob('pyforum') {
         logRotator {
           numToKeep(10)
+        }
+        parameters {
+          stringParam('KEEP_TAGS', '10', 'How many recent SHA tags to keep on Docker Hub')
         }
         properties {
           disableConcurrentBuilds()
