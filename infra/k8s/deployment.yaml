@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyforum
+  namespace: pyforum
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pyforum
+  template:
+    metadata:
+      labels:
+        app: pyforum
+    spec:
+      initContainers:
+        - name: copy-media
+          image: lubernen/pyforum:ffb590c
+          command: ["sh", "-c", "cp -r /app/media/. /media/"]
+          volumeMounts:
+            - name: media
+              mountPath: /media
+      containers:
+        - name: app
+          image: lubernen/pyforum:ffb590c
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: pyforum-config
+            - secretRef:
+                name: pyforum-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+        - name: nginx
+          image: nginx:1.29-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: media
+              mountPath: /media
+              readOnly: true
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: media
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: pyforum-nginx
