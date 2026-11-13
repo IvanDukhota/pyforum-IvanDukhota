@@ -5,7 +5,7 @@ metadata:
   namespace: pyforum
 data:
   DEBUG: "False"
-  ALLOWED_HOSTS: ac6c38dcda8c848258125e1002f87b2d-1849362506.eu-central-1.elb.amazonaws.com
+  ALLOWED_HOSTS: a26e808127cfd4c97902221459bf96c4-1639296749.eu-central-1.elb.amazonaws.com
   PG_DB: forum
   PG_USER: pyforum
   DB_HOST: pyforum.c9agueuk8hfb.eu-central-1.rds.amazonaws.com
@@ -16,4 +16,4 @@ data:
   EMAIL_USE_TLS: "1"
   EMAIL_HOST_USER: ""
   EMAIL_HOST_PASSWORD: ""
-  CORS_ORIGIN_WHITELIST: http://ac6c38dcda8c848258125e1002f87b2d-1849362506.eu-central-1.elb.amazonaws.com
+  CORS_ORIGIN_WHITELIST: http://a26e808127cfd4c97902221459bf96c4-1639296749.eu-central-1.elb.amazonaws.com

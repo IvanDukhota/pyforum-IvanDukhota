@@ -6,10 +6,15 @@ metadata:
 data:
   default.conf: |
     server {
-        listen 80;
+        listen 8080;
         server_name _;
 
         client_max_body_size 10M;
+
+        location = /healthz {
+            access_log off;
+            return 200 "ok";
+        }
 
         location /media/ {
             alias /media/;

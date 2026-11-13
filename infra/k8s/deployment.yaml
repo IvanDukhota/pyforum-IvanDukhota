@@ -13,16 +13,38 @@ spec:
       labels:
         app: pyforum
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         - name: copy-media
           image: lubernen/pyforum:ffb590c
           command: ["sh", "-c", "cp -r /app/media/. /media/"]
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           volumeMounts:
             - name: media
               mountPath: /media
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
       containers:
         - name: app
           image: lubernen/pyforum:ffb590c
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8000
           envFrom:
@@ -30,6 +52,17 @@ spec:
                 name: pyforum-config
             - secretRef:
                 name: pyforum-secret
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               cpu: 100m
@@ -37,9 +70,26 @@ spec:
             limits:
               memory: 512Mi
         - name: nginx
-          image: nginx:1.29-alpine
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
-            - containerPort: 80
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
           volumeMounts:
             - name: media
               mountPath: /media
