@@ -22,9 +22,9 @@ resource "aws_db_instance" "this" {
   storage_type      = "gp3"
   storage_encrypted = true
 
-  db_name                     = "forum"
-  username                    = "pyforum"
-  manage_master_user_password = true
+  db_name  = "forum"
+  username = "pyforum"
+  password = random_password.db.result
 
   db_subnet_group_name   = module.vpc.database_subnet_group_name
   vpc_security_group_ids = [aws_security_group.rds.id]
