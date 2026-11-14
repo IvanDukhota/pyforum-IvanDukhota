@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pyforum-config
+  namespace: pyforum
+data:
+  DEBUG: "False"
+  ALLOWED_HOSTS: a26e808127cfd4c97902221459bf96c4-1639296749.eu-central-1.elb.amazonaws.com
+  PG_DB: forum
+  PG_USER: pyforum
+  DB_HOST: pyforum.c9agueuk8hfb.eu-central-1.rds.amazonaws.com
+  DB_PORT: "5432"
+  EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
+  EMAIL_HOST: ""
+  EMAIL_PORT: "587"
+  EMAIL_USE_TLS: "1"
+  EMAIL_HOST_USER: ""
+  EMAIL_HOST_PASSWORD: ""
+  CORS_ORIGIN_WHITELIST: http://a26e808127cfd4c97902221459bf96c4-1639296749.eu-central-1.elb.amazonaws.com
